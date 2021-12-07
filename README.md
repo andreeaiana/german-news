@@ -1,7 +1,6 @@
-# renewrs_corpora
-<!-- Topic-specific news corpus collection from German media outlets for the ReNewRS project. -->
+# german-news
 
-renewrs-corpora offers utilities for building topic-specific news corpus collections from online German media outlets. Articles relevant for a given topic are retrieved based on keywords stems. 
+german_news offers utilities for building topic-specific news corpus collections from online German media outlets. Articles relevant for a given topic are retrieved based on keywords stems. 
 
 ## Features
 - Built using the standard Scrapy project setup and layout.
@@ -9,7 +8,7 @@ renewrs-corpora offers utilities for building topic-specific news corpus collect
 - Can be extended with new spiders for other outlets, customed pipelines, extension, and middlewares.
 
 ## Extracted information
-renewrs-corpora extracts the following attributes from news articles:
+german-news extracts the following attributes from news articles:
 - headline
 - abstract (lead paragraph)
 - body (main text)
@@ -36,7 +35,6 @@ The following topic-specific conditions are currently supported and need to be s
 - Keywords
 
 Run the code: 
-
 ```
 scrapy crawl $OUTLET
 ```
@@ -57,7 +55,7 @@ optional arguments:
 ```
 
 ## Data
-A sample of the rw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract an bodies of the articles. 
+A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract an bodies of the articles. 
 
 A full version of the news corpus is available [upon request](mailto:andreea@informatik.uni-mannheim.de).
 
