@@ -46,7 +46,7 @@ optional arguments:
 ```
 
 ## Data
-A sample of the news corpus constructed for the topic *refugees and migration* is available in [datasets](./data/datasets). Due to copyright policies, this sample does not contain the abstract an bodies of the articles. 
+A sample of the rw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract an bodies of the articles. 
 
 A full version of the news corpus is available [upon request](mailto:andreea@informatik.uni-mannheim.de).
 
