@@ -1,12 +1,12 @@
 # renewrs_corpora
 <!-- Topic-specific news corpus collection from German media outlets for the ReNewRS project. -->
 
-renewrs-corpora offers utilities building topic-specific news corpus collections from online German media outlets. Articles relevant for a given topic are retrieved based on keywords stems. New topics or customized spiders for additional media outlets can easily be added to the current implementation.
+renewrs-corpora offers utilities for building topic-specific news corpus collections from online German media outlets. Articles relevant for a given topic are retrieved based on keywords stems. 
 
 ## Features
-- It is built using the standard Scrapy project setup and layout.
-- It provides spiders for 42 German media outlets.
-- It can be extended with new spiders for other outlets, customed pipelines, extension, and middlewares.
+- Built using the standard Scrapy project setup and layout.
+- Provides spiders for 42 German media outlets.
+- Can be extended with new spiders for other outlets, customed pipelines, extension, and middlewares.
 
 ## Extracted information
 renewrs-corpora extracts the following attributes from news articles:
@@ -24,9 +24,20 @@ renewrs-corpora extracts the following attributes from news articles:
 ## Usage
 
 ### Crawling an outlet:
-Set configuration for the desired spider in [settings.py](./news_crawler/settings.py). Run the code: 
+Set configuration for the desired spider in [settings.py](./news_crawler/settings.py). 
 
-```python
+The following topic-specific conditions are currently supported and need to be specified:
+- Stopping condition: item count or timeout
+- Topic
+- Publication date timeframe
+- Minimum article length
+- Minimum keyword frequency
+- Minimum distance between keywords in text
+- Keywords
+
+Run the code: 
+
+```
 scrapy crawl $OUTLET
 ```
 
