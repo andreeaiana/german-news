@@ -22,7 +22,7 @@ german-news extracts the following attributes from news articles:
 
 ## Usage
 
-### Crawling an outlet:
+### Crawling an outlet
 Set configuration for the desired spider in [settings.py](./news_crawler/settings.py). 
 
 The following topic-specific conditions are currently supported and need to be specified:
@@ -34,12 +34,12 @@ The following topic-specific conditions are currently supported and need to be s
 - Minimum distance between keywords in text
 - Keywords
 
-Run the code: 
+Run the code
 ```
 scrapy crawl $OUTLET
 ```
 
-### Creating a dataset from scraped articles:
+### Creating a dataset from scraped articles
 ```
 python preprocess_data 
 
@@ -55,7 +55,7 @@ optional arguments:
 ```
 
 ## Data
-A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract an bodies of the articles. 
+A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract and body of the articles. 
 
 A full version of the news corpus is available [upon request](mailto:andreea@informatik.uni-mannheim.de).
 
