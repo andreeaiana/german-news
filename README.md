@@ -23,7 +23,7 @@ german-news extracts the following attributes from news articles:
 ## Usage
 
 ### Crawling an outlet
-Set configuration for the desired spider in [settings.py](./news_crawler/settings.py). 
+Configurations for the desired spider can be set in `settings.py`. 
 
 The following topic-specific conditions are currently supported and need to be specified:
 - Stopping condition: item count or timeout
@@ -55,7 +55,7 @@ optional arguments:
 ```
 
 ## Data
-A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in [dataset](/data/dataset). Due to copyright policies, this sample does not contain the abstract and body of the articles. 
+A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in `data/dataset` folder. Due to copyright policies, this sample does not contain the abstract and body of the articles. 
 
 A full version of the news corpus is available [upon request](mailto:andreea@informatik.uni-mannheim.de).
 
