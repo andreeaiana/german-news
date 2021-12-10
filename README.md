@@ -60,9 +60,7 @@ A sample of the raw and processed news corpus constructed for the topic *refugee
 A full version of the news corpus is available [upon request](mailto:andreea@informatik.uni-mannheim.de).
 
 ## Requirements
-This code is implemented in Python 3. The requirements can be installed from requirements.txt
-
-
+This code is implemented in Python 3. The requirements can be installed from `requirements.txt`.
 ```python
 pip3 install -r requirements.txt
 ```
