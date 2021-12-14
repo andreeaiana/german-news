@@ -57,7 +57,7 @@ class SueddeutscheSpider(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get() for node in response.xpath('//p[@class=" css-0"]')]
+        paragraphs = [node.xpath('string()').get() for node in  response.xpath('//p[contains(@class, " css-1")]')]
         paragraphs = remove_empty_paragraphs(paragraphs)
         text = ' '.join([para for para in paragraphs])
 
@@ -101,7 +101,7 @@ class SueddeutscheSpider(BaseSpider):
             headlines = [h3.xpath('string()').get().strip() for h3 in response.xpath('//h3[not(@*)]')]
             
             # Extract paragraphs with headlines
-            text = [node.xpath('string()').get().strip() for node in response.xpath('//p[@class=" css-0"] | //h3[not(@*)]')]
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//p[contains(@class, " css-1")] | //h3[not(@*)]')]
 
             # Extract paragraphs between the abstract and the first headline
             body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])

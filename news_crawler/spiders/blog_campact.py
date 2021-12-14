@@ -45,9 +45,9 @@ class BlogCampactSpider(BaseSpider):
         data = json.loads(data_json)
 
         # Check date validity
-        if not 'datePublished' in data['@graph'][2].keys():
+        if not 'datePublished' in data['@graph'][3].keys():
             return
-        creation_date = data['@graph'][2]['datePublished']
+        creation_date = data['@graph'][3]['datePublished']
         if not creation_date:
             return
         creation_date = datetime.fromisoformat(creation_date.split('+')[0])
@@ -76,7 +76,7 @@ class BlogCampactSpider(BaseSpider):
         
         # Get creation, modification, and crawling dates
         item['creation_date'] = creation_date.strftime('%d.%m.%Y')
-        last_modified = data['@graph'][2]['dateModified']
+        last_modified = data['@graph'][3]['dateModified']
         item['last_modified'] = datetime.fromisoformat(last_modified.split('+')[0]).strftime('%d.%m.%Y')
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
         
@@ -85,8 +85,9 @@ class BlogCampactSpider(BaseSpider):
         item['author_person'] = [author for author in authors if author != 'Campact Team'] if authors else list()
         item['author_organization'] = [author for author in authors if author == 'Campact Team'] if authors else list()
 
-        # No keywords available
-        item['news_keywords'] = list()
+        # Extract keywords, if available
+        news_keywords = data['@graph'][5]['keywords']
+        item['news_keywords'] = news_keywords if news_keywords else list()
         
         # Get title, description, and body of article
         title = response.xpath('//meta[@property="og:title"]/@content').get()

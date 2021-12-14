@@ -16,22 +16,22 @@ class Journalistenwatch(BaseSpider):
     """Spider for journalistenwatch"""
     name = 'journalistenwatch'
     rotate_user_agent = True
-    allowed_domains = ['www.journalistenwatch.com']
-    start_urls = ['https://www.journalistenwatch.com/']
+    allowed_domains = ['journalistenwatch.com']
+    start_urls = ['https://journalistenwatch.com/']
 
     # Exclude pages without relevant articles
     rules = (
             Rule(
                 LinkExtractor(
-                    allow=(r'www\.journalistenwatch\.com\/\w.*'),
-                    deny=(r'www\.journalistenwatch\.com\/impressum\/',
-                        r'www\.journalistenwatch\.com\/datenshutzerklaerung\/',
-                        r'www\.journalistenwatch\.com\/kontakt\/',
-                        r'www\.journalistenwatch\.com\/downloads\/',
-                        r'www\.journalistenwatch\.com\/spenden\/',
-                        r'www\.journalistenwatch\.com\/category\/video\/',
-                        r'www\.journalistenwatch\.com\/freie\-medien\/',
-                        r'www\.journalistenwatch\.com\/auf\-jouwatch\-werben\/'
+                    allow=(r'journalistenwatch\.com\/\w.*'),
+                    deny=(r'journalistenwatch\.com\/impressum\/',
+                        r'journalistenwatch\.com\/datenshutzerklaerung\/',
+                        r'journalistenwatch\.com\/kontakt\/',
+                        r'journalistenwatch\.com\/downloads\/',
+                        r'journalistenwatch\.com\/spenden\/',
+                        r'journalistenwatch\.com\/category\/video\/',
+                        r'journalistenwatch\.com\/freie\-medien\/',
+                        r'journalistenwatch\.com\/auf\-jouwatch\-werben\/'
                         )
                     ),
                 callback='parse_item',

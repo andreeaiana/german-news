@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 from news_crawler.spiders import BaseSpider
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
@@ -54,7 +55,7 @@ class CompactOnline(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@class, "post-content description")]/p | //div[contains(@class, "post-content description")]/blockquote/p')]
+        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@class, "post-content")]/p | //div[contains(@class, "post-content")]/blockquote/p')]
         paragraphs = paragraphs[1:]
         paragraphs = remove_empty_paragraphs(paragraphs)
         text = ' '.join([para for para in paragraphs])
@@ -82,25 +83,52 @@ class CompactOnline(BaseSpider):
 
         # Get authors
         item['author_person'] = list()
-        item['author_person'].append(response.xpath('//span[@class="posted-by"]/span/a/text()').get())
         item['author_organization'] = list()
+        data_json = response.xpath('//script[@type="application/ld+json"]/text()').get()
+        if data_json:
+            data = json.loads(data_json)  
+            if 'name' in data['@graph'][-1]:
+                author = data['@graph'][-1]['name']
+                if not 'COMPACT' in author:
+                    item['author_person'].append([author])
+                else:
+                    item['author_organization'].append([author])      
 
-        # Extract keywords, if available
-        news_keywords = response.xpath('//meta[@property="article:tag"]/@content').getall()
-        item['news_keywords'] = news_keywords if news_keywords else list()
+        # No keywords available
+        item['news_keywords'] = list()
 
         # Get title, description, and body of article
         title = response.xpath('//meta[@property="og:title"]/@content').get().strip()
+        title = title.strip(' - COMPACT')
         description = response.xpath('//meta[@property="og:description"]/@content').get().strip()
 
         # Body as dictionary: key = headline (if available, otherwise empty string), values = list of corresponding paragraphs
         body = dict()
-        body[''] = paragraphs
+        if response.xpath('//div[starts-with(@class, "post-content")]/h4'):
+            # Extract headlines
+            headlines = [node.xpath('string()').get().strip() for node in response.xpath('//div[starts-with(@class, "post-content")]/h4')]
+            
+            # Extract paragraphs with headlines
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@class, "post-content")]/p | //div[contains(@class, "post-content")]/blockquote/p | //div[starts-with(@class, "post-content")]/h4')]
+
+            # Extract paragraphs between the abstract and the first headline
+            body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])
+
+            # Extract paragraphs corresponding to each headline, except the last one
+            for i in range(len(headlines)-1):
+                body[headlines[i]] = remove_empty_paragraphs(text[text.index(headlines[i])+1:text.index(headlines[i+1])])
+
+            # Extract the paragraphs belonging to the last headline
+            body[headlines[-1]] = remove_empty_paragraphs(text[text.index(headlines[-1])+1:])
+
+        else:
+            # The article has no headlines, just paragraphs
+            body[''] = paragraphs 
 
         item['content'] = {'title': title, 'description': description, 'body':body}
 
         # Extract first 5 recommendations towards articles from the same news outlet, if available
-        recommendations = response.xpath('//section[@class="related-posts"]//article/a/@href').getall()
+        recommendations = list(set(response.xpath('//section[@class="related-posts"]//article//a/@href').getall()))
         if recommendations:
             if len(recommendations) > 5:
                 recommendations = recommendations[:5]

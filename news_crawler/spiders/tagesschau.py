@@ -62,7 +62,7 @@ class TagesschauSpider(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//p[@class="text small" and not(descendant::strong)] | //blockquote[@class="zitat"]/p')]
+        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//p[contains(@class, "m-ten")]')]
         paragraphs = remove_empty_paragraphs(paragraphs)
         text = ' '.join([para for para in paragraphs])
 
@@ -88,27 +88,27 @@ class TagesschauSpider(BaseSpider):
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
         
         # Get authors
-        data_authors = data['author']['name']
+        authors_list = response.xpath('//div[@class="authorline__author"]/text() | //div[@class="authorline__author"]/em/text()').get()
 
-        # Check if the author is an organization
-        if data_authors:
-            if data_authors == 'tagesschau':
-                item['author_person'] = list()
-                item['author_organization'] = [data_authors]
-            else:
-                # Check if authors are persons
-                author_person = data_authors.split(', ')[0]
-                author_person = author_person.split(' und ') if ' und ' in author_person else [author_person]
-                item['author_person'] = [author.strip(' Von ') for author in author_person]
-                author_organization = data_authors.split(', ')[1:]
-                item['author_organization'] = [' '.join(elem for elem in author_organization)]
-        else:
-            item['author_person'] = list()
-            item['author_organization'] = list()
+        item['author_person'] = list()
+        item['author_organization'] = list()
+
+        if authors_list:
+            authors_list = authors_list.split(', sowie ')
+            for authors in authors_list:
+                authors = authors.strip('Von ')
+                authors = authors.split(', ')
+
+                author_organization = authors[-1]
+                item['author_organization'].extend(author_organization.split('/'))
+
+                author_person = authors[:-1]
+                for author in author_person:
+                    item['author_person'].extend(author.split(' und '))
 
         # Extract keywords
-        news_keywords = response.xpath('//meta[@name="news_keywords"]/@content').get()
-        item['news_keywords'] = news_keywords.split(', ') if news_keywords else list()
+        news_keywords = [node.xpath('text()').get() for node in response.xpath('//ul[@class="taglist"]/li/a')]
+        item['news_keywords'] = news_keywords if news_keywords else list()
         
         # Get title, description, and body of article
         title = response.xpath('//meta[@property="og:title"]/@content').get().strip()
@@ -116,12 +116,12 @@ class TagesschauSpider(BaseSpider):
        
         # Body as dictionary: key = headline (if available, otherwise empty string), values = list of corresponding paragraphs
         body = dict()
-        if response.xpath('//h2[@class="subtitle small "]'):
+        if response.xpath('//h2[contains(@class, "meldung__subhead")]'):
             # Extract headlines
-            headlines = [h2.xpath('string()').get().strip() for h2 in response.xpath('//h2[@class="subtitle small "]')]
+            headlines = [h2.xpath('string()').get().strip() for h2 in response.xpath('//h2[contains(@class, "meldung__subhead")]')]
             
             # Extract paragraphs with headlines
-            text = [node.xpath('string()').get().strip() for node in response.xpath('//p[@class="text small" and not(descendant::strong)] | //blockquote[@class="zitat"]/p | //h2[@class="subtitle small "]')]
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//p[contains(@class, "m-ten")] | //h2[contains(@class, "meldung__subhead")]')]
 
             # Extract paragraphs between the abstract and the first headline
             body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])
@@ -140,22 +140,7 @@ class TagesschauSpider(BaseSpider):
         item['content'] = {'title': title, 'description': description, 'body':body}
         
         # Extract first 5 recommendations towards articles from the same news outlet, if available
-        
-        # Extract from categories "Mehr zum Thema"
-        mehr_zum_thema_h3 = response.xpath('//div[preceding-sibling::h3[contains(text(), "Mehr zum Thema")]]/div/ul/li/a/@href').getall() 
-        if mehr_zum_thema_h3:
-            mehr_zum_thema_h3 = ['https://www.tagesschau.de' + rec for rec in mehr_zum_thema_h3]
-
-        mehr_zum_thema_h4 = response.xpath('//div[preceding-sibling::h4[contains(text(), "Mehr zum Thema")]]/ul/li/a/@href').getall() 
-        if mehr_zum_thema_h4:
-            mehr_zum_thema_h4 = ['https://www.tagesschau.de' + rec for rec in mehr_zum_thema_h4]
-        
-        # Extract from categories "Aus dem Archiv"
-        aus_dem_archiv = response.xpath('//div[preceding-sibling::h3[contains(text(), "Aus dem Archiv")]]/div/ul/li/a/@href').getall() 
-        if aus_dem_archiv:
-            aus_dem_archiv = ['https://www.tagesschau.de' + rec for rec in aus_dem_archiv]
-
-        recommendations = mehr_zum_thema_h3 + mehr_zum_thema_h4 + aus_dem_archiv
+        recommendations = response.xpath('//div[preceding-sibling::div//h2[contains(text(), "Mehr zum Thema")]]/ul/li/a/@href').getall()
         if recommendations:
             if len(recommendations) > 5:
                 recommendations = recommendations[:5]

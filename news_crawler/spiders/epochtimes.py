@@ -44,7 +44,7 @@ class Epochtimes(BaseSpider):
         """
         
         # Check date validity
-        creation_date = response.xpath('//meta[@name="article:published_time"]/@content').get()
+        creation_date = response.xpath('//meta[@property="article:published_time"]/@content').get()
         if not creation_date:
             return
         creation_date = datetime.fromisoformat(creation_date.split('+')[0])
@@ -52,7 +52,8 @@ class Epochtimes(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[@id="news-content"]//p[not(preceding-sibling::h2[@*])] | //div[@id="news-content"]//blockquote/p[not(preceding-sibling::h2[@*])]')]
+        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@id, "news-content")]/p')]
+        paragraphs.remove('Jetzt spenden!')
         paragraphs = remove_empty_paragraphs(paragraphs)
         text = ' '.join([para for para in paragraphs])
 
@@ -73,7 +74,7 @@ class Epochtimes(BaseSpider):
 
         # Get creation, modification, and crawling dates
         item['creation_date'] = creation_date.strftime('%d.%m.%Y')
-        last_modified = response.xpath('//meta[@name="article:modified_time"]/@content').get()
+        last_modified = response.xpath('//meta[@property="article:modified_time"]/@content').get()
         item['last_modified'] = datetime.fromisoformat(last_modified.split('+')[0]).strftime('%d.%m.%Y')
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
 
@@ -102,7 +103,8 @@ class Epochtimes(BaseSpider):
             headlines = [h2.xpath('string()').get().strip() for h2 in response.xpath('//h2[not(@*)]')]
 
             # Extract the paragraphs and headlines together
-            text = [node.xpath('string()').get().strip() for node in response.xpath('//div[@id="news-content"]//p[not(preceding-sibling::h2[@*])] | //div[@id="news-content"]//blockquote/p[not(preceding-sibling::h2[@*])] | //h2[not(@*)]')]
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@id, "news-content")]/p | //h2[not(@*)]')]
+            text.remove('Jetzt spenden!')
           
             # Extract paragraphs between the abstract and the first headline
             body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])
@@ -121,7 +123,7 @@ class Epochtimes(BaseSpider):
         item['content'] = {'title': title, 'description': description, 'body':body}
 
         # Extract first 5 recommendations towards articles from the same news outlet, if available
-        recommendations = response.xpath('//ul[@class="mu-related"]/li[@class="related-article"]/a/@href').getall()
+        recommendations = response.xpath('//div[@class="mu-related-articles"]//a/@href').getall()
         if recommendations:
             if len(recommendations) > 5:
                 recommendations = recommendations[:5]

@@ -24,7 +24,7 @@ class Jungefreiheit(BaseSpider):
     rules = (
             Rule(
                 LinkExtractor(
-                    allow=(r'jungefreiheit\.de\/\w.*'),
+                    allow=(r'jungefreiheit\.de(\/\w.*)+\/\d*\/\w.*'),
                     deny=(r'jungefreiheit\.de\/archiv\/',
                         r'jungefreiheit\.de\/informationen\/',
                         r'jungefreiheit\.de\/service\/',
@@ -47,14 +47,10 @@ class Jungefreiheit(BaseSpider):
         # Check date validity
         data_json = response.xpath('//script[@type="application/ld+json"]/text()').get()
         data = json.loads(data_json)['@graph']
-        creation_date = data[4]['datePublished']
+        creation_date = data[5]['datePublished']
         if not creation_date:
             return
-        if 'CEST' in creation_date:
-            creation_date = creation_date.split('CEST')[0]
-            creation_date = datetime.fromisoformat(creation_date)
-        else:
-            creation_date = datetime.fromisoformat(creation_date.split('+')[0])
+        creation_date = datetime.fromisoformat(creation_date.split('+')[0])
         if self.is_out_of_date(creation_date):
             return
 
@@ -81,14 +77,14 @@ class Jungefreiheit(BaseSpider):
         # Get creation, modification, and crawling dates
         item['creation_date'] = creation_date.strftime('%d.%m.%Y')
 
-        last_modified = data[4]['dateModified']
+        last_modified = data[5]['dateModified']
         item['last_modified'] = datetime.fromisoformat(last_modified.split('+')[0]).strftime('%d.%m.%Y')
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
 
         # Get authors
-        authors = data[4]['author']
-        item['author_person'] = [authors['name']] if authors['name']!='Online Redaktion' else list()
-        item['author_organization'] = [authors['name']] if authors['name']=='Online Redaktion' else list()
+        authors = data[4]['name']
+        item['author_person'] = [authors['name']] if authors['name']!='JF' else list()
+        item['author_organization'] = [authors['name']] if authors['name']=='JF' else list()
 
         # Extract keywords, if available
         news_keywords = response.xpath('//meta[@property="article:tag"]/@content').getall()

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 from news_crawler.spiders import BaseSpider
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
@@ -43,9 +44,13 @@ class Opposition24(BaseSpider):
         """
         Checks article validity. If valid, it parses it.
         """
-        
+        data_json = response.xpath('//script[@type="application/ld+json"]/text()').get()
+        if not data_json:
+            return
+        data = json.loads(data_json)  
+
         # Check date validity
-        creation_date = response.xpath('//meta[@itemprop="datePublished"]/@content').get()
+        creation_date = data['datePublished']
         if not creation_date:
             return
         creation_date = datetime.fromisoformat(creation_date.split('+')[0])
@@ -53,7 +58,7 @@ class Opposition24(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[starts-with(@class,"td-post-content")]/p')]
+        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[starts-with(@class, "post-content")]/p')]
         paragraphs = remove_empty_paragraphs(paragraphs)
         text = ' '.join([para for para in paragraphs])
 
@@ -74,14 +79,14 @@ class Opposition24(BaseSpider):
 
         # Get creation, modification, and crawling dates
         item['creation_date'] = creation_date.strftime('%d.%m.%Y')
-        last_modified = response.xpath('//meta[@itemprop="dateModified"]/@content').get()
+        last_modified = data['dateModified']
         item['last_modified'] = datetime.fromisoformat(last_modified.split('+')[0]).strftime('%d.%m.%Y')
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
 
         # Get authors
-        authors = response.xpath('//div[@class="td-author-by"]/following-sibling::a/text()').getall()
-        item['author_person'] = authors if authors else list()
-        item['author_organization'] = list()
+        author = data['author']['name']
+        item['author_person'] = [author] if author  and not (author == 'Redaktion' or author == 'Gastbeitrag') else list()
+        item['author_organization'] = [author] if author and (author == 'Redaktion' or author == 'Gastbeitrag') else list()
 
         # Extract keywords, if available
         item['news_keywords'] = list()
@@ -92,12 +97,31 @@ class Opposition24(BaseSpider):
 
         # Body as dictionary: key = headline (if available, otherwise empty string), values = list of corresponding paragraphs
         body = dict()
-        body[''] = paragraphs
+        if response.xpath('//div[starts-with(@class, "post-content")]/h4/strong | //h3[not(@*)]'):
+            # Extract headlines
+            headlines = [node.xpath('string()').get().strip() for node in response.xpath('//div[starts-with(@class, "post-content")]/h4/strong | //h3[not(@*)]')]
+            
+            # Extract paragraphs with headlines
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//div[starts-with(@class, "post-content")]/p | //div[starts-with(@class, "post-content")]/h4/strong | //h3[not(@*)]')]
+
+            # Extract paragraphs between the abstract and the first headline
+            body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])
+
+            # Extract paragraphs corresponding to each headline, except the last one
+            for i in range(len(headlines)-1):
+                body[headlines[i]] = remove_empty_paragraphs(text[text.index(headlines[i])+1:text.index(headlines[i+1])])
+
+            # Extract the paragraphs belonging to the last headline
+            body[headlines[-1]] = remove_empty_paragraphs(text[text.index(headlines[-1])+1:])
+
+        else:
+            # The article has no headlines, just paragraphs
+            body[''] = paragraphs 
 
         item['content'] = {'title': title, 'description': description, 'body':body}
 
         # Extract first 5 recommendations towards articles from the same news outlet, if available
-        recommendations = list(set(response.xpath('//div[@class="td-mega-row"]//a/@href').getall()))
+        recommendations = list(set(response.xpath('//section[@class="related-posts"]//a/@href').getall()))
         if recommendations:
             if len(recommendations) > 5:
                 recommendations = recommendations[:5]

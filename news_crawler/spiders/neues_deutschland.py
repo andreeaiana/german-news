@@ -16,28 +16,28 @@ class NeuesDeutschlandSpider(BaseSpider):
     """Spider for neues-deutschland"""
     name = 'neues_deutschland'
     rotate_user_agent = True
-    allowed_domains = ['www.neues-deutschland.de']
-    start_urls = ['https://www.neues-deutschland.de/']
+    allowed_domains = ['www.nd-aktuell.de']
+    start_urls = ['https://www.nd-aktuell.de/']
     
     # Exclude pages without relevant articles 
     rules = (
             Rule(
                 LinkExtractor(
-                    allow=(r'www\.neues\-deutschland\.de\/artikel\/\d+\.\w.*\.html'),
-                    deny=(r'www\.neues\-deutschland\.de\/shop\/',
-                        r'www\.neues\-deutschland\.de\/leserreisen\/',
-                        r'www\.neues\-deutschland\.de\/termine\/',
-                        r'www\.neues\-deutschland\.de\/anzeigen\/',
-                        r'www\.neues\-deutschland\.de\/jobs\/',
-                        r'www\.neues\-deutschland\.de\/abo\/',
-                        r'www\.neues\-deutschland\.de\/newsletter\/',
-                        r'www\.neues\-deutschland\.de\/nd-ticker\/',
-                        r'www\.neues\-deutschland\.de\/redaktion\/',
-                        r'www\.neues\-deutschland\.de\/gastautoren\/',
-                        r'www\.neues\-deutschland\.de\/kontakt\/',
-                        r'www\.neues\-deutschland\.de\/tag\/',
-                        r'www\.neues\-deutschland\.de\/nd_extra\/',
-                        r'www\.neues\-deutschland\.de\/\w.*\.php'
+                    allow=(r'www\.nd\-aktuell\.de\/artikel\/\d+\.\w.*\.html'),
+                    deny=(r'www\.nd\-aktuell\.de\/shop\/',
+                        r'www\.nd\-aktuell\.de\/leserreisen\/',
+                        r'www\.nd\-aktuell\.de\/termine\/',
+                        r'www\.nd\-aktuell\.de\/anzeigen\/',
+                        r'www\.nd\-aktuell\.de\/jobs\/',
+                        r'www\.nd\-aktuell\.de\/abo\/',
+                        r'www\.nd\-aktuell\.de\/newsletter\/',
+                        r'www\.nd\-aktuell\.de\/nd-ticker\/',
+                        r'www\.nd\-aktuell\.de\/redaktion\/',
+                        r'www\.nd\-aktuell\.de\/gastautoren\/',
+                        r'www\.nd\-aktuell\.de\/kontakt\/',
+                        r'www\.nd\-aktuell\.de\/tag\/',
+                        r'www\.nd\-aktuell\.de\/nd_extra\/',
+                        r'www\.nd\-aktuell\.de\/\w.*\.php'
                         )
                     ),
                 callback='parse_item',
@@ -138,7 +138,7 @@ class NeuesDeutschlandSpider(BaseSpider):
         if recommendations:
             if len(recommendations) > 5:
                 recommendations = recommendations[:5]
-            recommendations = ['https://www.neues-deutschland.de' + rec for rec in recommendations]
+            recommendations = ['https://www.nd-aktuell.de' + rec for rec in recommendations]
             item['recommendations'] = recommendations
         else:
             item['recommendations'] = list()

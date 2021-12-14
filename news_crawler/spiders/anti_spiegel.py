@@ -51,9 +51,8 @@ class Antispiegel(BaseSpider):
             return
 
         # Extract the article's paragraphs
-        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@class, "entry-content")]/p | //div/blockquote/p')]
+        paragraphs = [node.xpath('string()').get().strip() for node in response.xpath('//div//div[@class="article__content"]/p | //div/blockquote/p')]
         paragraphs = remove_empty_paragraphs(paragraphs)
-        paragraphs = paragraphs[1:] # First pargraph is the description
         text = ' '.join([para for para in paragraphs])
 
         # Check article's length validity
@@ -80,8 +79,10 @@ class Antispiegel(BaseSpider):
         # Get authors
         item['author_person'] = list()
         item['author_organization'] = list()
-        author = response.xpath("//h2[@class='author-title']/text()").get().strip()
-        if 'Anti' in author:
+        author = response.xpath('//div[@class="authors article-meta__authors "]/text()').get().strip()
+        if 'von' in author:
+            author = author.split('von')[-1].strip()
+        if 'Anti-Spiegel' in author:
             item['author_organization'].append(author)
         else:
             item['author_person'].append(author)
@@ -89,8 +90,8 @@ class Antispiegel(BaseSpider):
         # Extract keywords, if available
         data_json = response.xpath("//script[@class='yoast-schema-graph']/text()").get()
         data_json = json.loads(data_json)
-        news_keywords = data_json['@graph'][3]['keywords']
-        item['news_keywords'] = news_keywords.split(',') if news_keywords else list()
+        news_keywords = data_json['@graph'][5]['keywords']
+        item['news_keywords'] = news_keywords if news_keywords else list()
 
         # Get title, description, and body of article
         title = response.xpath('//meta[@property="og:title"]/@content').get().split(' | Anti-Spiegel')[0]
@@ -104,10 +105,7 @@ class Antispiegel(BaseSpider):
             headlines = [h.xpath('string()').get().strip() for h in response.xpath('//h2[not(@*)] | //h3[not(@*)]')]
 
             # Extract the paragraphs and headlines together
-            text = [node.xpath('string()').get().strip() for node in response.xpath('//div[contains(@class, "entry-content")]/p | //div/blockquote/p | //h2[not(@*)] | //h3[not(@*)]')]
-
-            # Remove first paragraph (i.e. description) to avoid duplicated paragrahs
-            text = text[1:]
+            text = [node.xpath('string()').get().strip() for node in response.xpath('//div//div[@class="article__content"]/p |  //div/blockquote/p | //h2[not(@*)] | //h3[not(@*)]')]
 
             # Extract paragraphs between the abstract and the first headline
             body[''] = remove_empty_paragraphs(text[:text.index(headlines[0])])

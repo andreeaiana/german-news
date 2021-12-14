@@ -46,7 +46,7 @@ class CiceroSpider(BaseSpider):
             return
 
         # Check date validity 
-        metadata = response.xpath('//div[@class="teaser-small__metadata"]/p/text()').getall()
+        metadata = response.xpath('//div[contains(@class, "teaser-small__metadata")]/p/text()').getall()
         if not metadata:
             return
         creation_date = metadata[-1].strip()
@@ -82,43 +82,17 @@ class CiceroSpider(BaseSpider):
         item['last_modified'] = creation_date.strftime('%d.%m.%Y')
         item['crawl_date'] = datetime.now().strftime('%d.%m.%Y')
         
-        # Get authors
-        metadata = response.xpath('//div[@class="teaser-small__metadata"]/p//text()').getall()
-        if not metadata:
-            item['author_person'] = list()
-            item['author_organization'] =  list()
-        else:
-            metadata = [s.strip() for s in metadata]
-            if len(metadata) > 1 :
-                authors = metadata[1]
-                # Check if the authors are persons
-                if len(authors.split()) == 1 or 'CICERO' in authors:      
-                    # Check if the author is an organization
-                    author_person = list()
-                    author_organization = [authors]
-                elif ',' in authors:
-                    # There are more than two persons listed as author
-                    authors = authors.split(', ')
-                    author_person = authors[:-1]
-                    if 'UND' in authors[-1]:
-                        author_person.extend(authors[-1].split(' UND '))
-                    else:
-                        author_person.extend(authors[-1])
-                    author_organization = list()
-                elif 'UND' in authors:
-                    # There are just two persons listed as authors
-                    author_person = authors.split(' UND ')
-                    author_organization = list()
-                else:
-                    author_person = [authors]
-                    author_organization = list()
+        # Get authors       
+        item['author_person'] = list()
+        item['author_organization'] =  list()
+
+        authors = response.xpath('//div[@class="row author-box"]//p[contains(text(), "So erreichen Sie")]/text()').getall()
+        if authors:
+            authors = [author.lstrip('So erreichen Sie ').rstrip(':') for author in authors]
+            if 'Cicero-Redaktion' in authors:
+                item['author_organization'].extend(authors)
             else:
-                authors = metadata[0]
-                author_person = [authors.split('VON ')[-1].split(', ')[0].split('am')[0]]
-                author_organization = list()
-            # All words are uppercased, capitalize them instead
-            item['author_person'] = [author.title() for author in author_person]
-            item['author_organization'] = [author.title() for author in author_organization]
+                item['author_person'].extend(authors)
 
         # Extract keywords
         news_keywords = response.xpath('//meta[@name="keywords"]/@content').get()
@@ -133,6 +107,7 @@ class CiceroSpider(BaseSpider):
         if response.xpath('//h3[not(contains(text(), "Kommentare"))]'):
             # Extract headlines
             headlines = [h3.xpath('string()').get().strip() for h3 in response.xpath('//h3[not(contains(text(), "Kommentare"))]')]
+            headlines.remove('Mehr lesen über')
             
             # Extract paragraphs with headlines
             text = [node.xpath('string()').get().strip() for node in response.xpath('//div[@class="field field-name-field-cc-body"]/p | //h3[not(contains(text(), "Kommentare"))]')]
