@@ -17,7 +17,8 @@ NEWSPIDER_MODULE = 'news_crawler.spiders'
 # Run spider until item count or timeout
 CLOSESPIDER_ITEMCOUNT = 200 
 CLOSESPIDER_TIMEOUT = 3600*24*3 # For topics 'refugees and migration', 'green deal'
-#CLOSESPIDER_TIMEOUT = 3600*24*5 # For topic 'klimawandel'
+#CLOSESPIDER_TIMEOUT = 3600*24*5 # For topic 'klimawandel' with item_count=200
+#CLOSESPIDER_TIMEOUT = 3600*24*10 # For topic 'klimawandel' without item_count
 #CLOSESPIDER_TIMEOUT = 3600*24*9 # For topic 'Grundeinkommen', 'wind power', 'homeopathy', 'legalization_soft_drugs'
 
 
@@ -33,11 +34,13 @@ TOPIC = 'refugees_migration'
 START_DATE = "01.01.2019" # For topics 'refugees and migration', 'klimawandel'
 #START_DATE = "01.01.2015" # For topics 'Grundeinkommen', 'wind power', 'homeopathy', 'legalization_soft_drugs'
 #START_DATE = "01.12.2019" # For topic 'green deal'
+#START_DATE = "21.10.2020" # For topic 'refugees and migration' 
 
 END_DATE = "20.10.2020" # For topic 'refugees and migration'
 #END_DATE = "16.12.2020" # For topic 'Grundeinkommen'
 #END_DATE = "31.01.2021" # For topics 'green deal', 'wind power', 'homeopathy', 'legalization_soft_drugs'
 #END_DATE = '30.11.2021' # For topic 'klimawandel'
+#END_DATE = '31.12.2021' # For topic 'refugees and migration'
 
 ARTICLE_LENGTH = 150
 KEYWORDS_MIN_FREQUENCY = 2

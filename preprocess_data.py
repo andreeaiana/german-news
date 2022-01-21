@@ -450,7 +450,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for data processing.')
     parser.add_argument('--topic', 
             default='refugees_migration',
-            choices=['refugees_migration', 'legalization_soft_drugs'],
+            choices=['refugees_migration', 'klimawandel'],
             type=str,
             help='The topic for which the dataset should be created (default: refugees_migration).'
             )
