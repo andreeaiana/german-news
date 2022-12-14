@@ -61,7 +61,8 @@ pip3 install -r requirements.txt
 ```
 
 ## License
-The code is licensed under the MIT License. The data files are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+The code is licensed under the MIT License.
+
 
 ## Contact
 **Author**: Andreea Iana
