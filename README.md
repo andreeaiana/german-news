@@ -54,11 +54,6 @@ optional arguments:
 --drop_articles_with_forbidden_patterns     Indicate whether to drop articles containing a predefined regular expression from the dataset (default: True)
 ```
 
-## Data
-A sample of the raw and processed news corpus constructed for the topic *refugees and migration* is available in `data/dataset` folder. Due to copyright policies, this sample does not contain the abstract and body of the articles. 
-
-A full version of the news corpus is available [upon request](mailto:andreea.iana@uni-mannheim.de).
-
 ## Requirements
 This code is implemented in Python 3. The requirements can be installed from `requirements.txt`.
 ```python
@@ -73,4 +68,4 @@ The code is licensed under the MIT License. The data files are licensed under th
 
 **Affiliation**: University of Mannheim
 
-**E-mail**: andreeaiana@uni-mannheim.de
+**E-mail**: andreea.iana@uni-mannheim.de
