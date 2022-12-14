@@ -129,14 +129,5 @@ dmypy.json
 .pyre/
 
 # Project-specific directories
-data/green_deal/
-data/grundeinkommen/
-data/homeopathy/
-data/legalization_soft_drugs/
-data/refugees_migration/
-data/wind_power/
+data
 notebooks/
-
-# Project-specific files
-data/dataset/refugees_migration_raw_complete.p
-data/dataset/refugees_migration_processed_complete.p
